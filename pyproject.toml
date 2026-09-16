@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:7ba1e85ddc21a6619cc99011d0a3c7ae3b73478e7573a756748f78aa5ee3584f
-size 670
+[project]
+name = "mediapipe-ai"
+version = "0.1.0"
+description = "Real-time computer vision demos built on MediaPipe Tasks, OpenCV, and Tesseract OCR."
+requires-python = ">=3.12"
+dependencies = [
+    "imageio>=2.37.4",
+    "imutils>=0.5.4",
+    # Pinned below 1.0: mediapipe 1.0.1 aborts on macOS when a Tasks vision graph opens
+    # ("graph_service.h: Check failed: service_ Service is unavailable." in DrishtiMetalHelper).
+    "mediapipe>=0.10,<1.0",
+    "mss>=10.2.0",
+    "openvisionkit>=0.5.5",
+    "pandas>=3.0.5",
+    "pyautogui>=0.9.54",
+    "pygame>=2.6.1",
+    "pynput>=1.8.2",
+    "pytesseract>=0.3.13",
+    "requests>=2.34.2",
+    "scikit-image>=0.26.0",
+]

@@ -1,3 +1,16 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:69c6174c030f4e855f114a55afaa6e7de2b549ccdd3c33a3d904cb5c593340e2
-size 90
+# macOS system files
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+
+# uv / virtualenv
+.venv/
+
+# Session memory / tooling caches
+.memsearch/
+
+# Demo output
+screenshots/
+recordings/

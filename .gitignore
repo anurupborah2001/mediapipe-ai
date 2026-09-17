@@ -14,3 +14,6 @@ __pycache__/
 # Demo output
 screenshots/
 recordings/
+text_detection/*_extracted_data.csv
+image_detection/results/*.png
+image_detection/results/*.txt

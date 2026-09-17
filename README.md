@@ -56,7 +56,7 @@ uv sync
 Optional extras, per project:
 
 ```bash
-uv add tensorflow            # hand_gesture/hand_sign_detection (Teachable Machine .h5)
+uv add tensorflow tf-keras   # hand_gesture/hand_sign_detection (Teachable Machine .h5)
 uv add spacy && uv run python -m spacy download en_core_web_sm   # text_detection NLP features
 uv add pycaw comtypes        # volume control on Windows only
 ```
@@ -542,7 +542,8 @@ All README screenshots live in [`images/github/`](images/github). MediaPipe land
 - `module/form_detector.py` and `module/form_roi_detector.py` both define a `FormROIDetector`.
   The `form_roi_detector.py` version is the newer, more capable one; `form_extraction.py`
   currently imports the one from `form_detector.py`.
-- `text_detection/form_extraction.py` also needs
-  `text_detection/assets/annotated_form/annotated_rois_latest.json`, which is not committed; generate
-  it by annotating a blank form with `module/form_roi_annotator.py` first.
+- `text_detection/form_extraction.py` reads its ROI definitions from
+  `text_detection/assets/annotated_form/annotated_rois_latest.json` at import time. That file is
+  committed and matches `assets/form/main_form.jpg`; annotating a different blank form with
+  `module/form_roi_annotator.py` replaces it.
 - External research links and experiment notes are kept in [`NOTES.md`](NOTES.md).

@@ -844,7 +844,7 @@ def main():
     imgRGB = cv2.cvtColor(imgFrame, cv2.COLOR_BGR2RGB)
     
     ## Detect the hand landmarks in the RGB image using the handDetector instance. The detected landmarks are stored in the hand_landmarks_list attribute of the handDetector object, which can be accessed for further processing or visualization.
-    annotated_image =  handDetector.draw_landmarks(imgRGB)
+    annotated_image, _ =  handDetector.draw_landmarks(imgRGB)
 
     ## Get the list of landmarks for the detected hands. The get_landmarks method processes the annotated image and returns a list of landmarks, which can be used for various applications such as gesture recognition or hand tracking.
     landmarks_list = handDetector.get_landmarks(annotated_image)

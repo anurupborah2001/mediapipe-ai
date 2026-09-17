@@ -71,7 +71,7 @@ def hair_segmentation_color_option_logic(frame):
     hand_gesture.set_landmarks_image(frame)
     land_marks = hand_gesture.get_landmarks(frame)
 
-    annotated_image = hand_gesture.draw_landmarks(frame)
+    annotated_image, _ = hand_gesture.draw_landmarks(frame)
 
     if len(land_marks) == 0:
         return annotated_image

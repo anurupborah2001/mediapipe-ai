@@ -1,14 +1,48 @@
 """
 Simple Classifier for Teachable Machine .h5 models
-Works well with TensorFlow 2.15 / 2.16 on Apple Silicon
+Works on TensorFlow 2.15 through 2.21 on Apple Silicon
+
+Teachable Machine exports legacy Keras 2 models. TensorFlow 2.16 and newer ship
+Keras 3, which cannot read them: loading fails first on the `"groups": 1` key
+that Teachable Machine writes into every depthwise layer, and then on the nested
+Sequential head, which Keras 3 calls with two input tensors. Both faults are in
+the loader, not in the file, so the model has to be loaded by Keras 2, which the
+`tf-keras` package provides alongside a modern TensorFlow:
+
+    uv add tensorflow tf-keras
+
+The loader is imported from `tf_keras` directly rather than selected with the
+`TF_USE_LEGACY_KERAS` environment variable, because that variable is only read
+while TensorFlow is first imported. Every script that uses this class imports a
+detector from `module/` first, which pulls in mediapipe and, with it, Keras 3 —
+so by the time this module runs, setting the variable would be too late.
 """
+
+import os
 
 import cv2
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.models import load_model
 from typing import List, Tuple
-import os
+
+try:                                    # Keras 2, the version these models need
+    from tf_keras.layers import DepthwiseConv2D
+    from tf_keras.models import load_model
+except ImportError:                     # whatever tensorflow bundles
+    from tensorflow.keras.layers import DepthwiseConv2D
+    from tensorflow.keras.models import load_model
+
+
+class _CompatDepthwiseConv2D(DepthwiseConv2D):
+    """DepthwiseConv2D that tolerates the `groups` key in Teachable Machine files.
+
+    A second line of defence for anyone who loads this module with legacy Keras
+    disabled. Dropping `groups` is safe: a depthwise convolution is already one
+    group per input channel, so the value was never read by Keras 2 either.
+    """
+
+    def __init__(self, *args, groups=1, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class Classifier:
@@ -19,7 +53,11 @@ class Classifier:
             raise FileNotFoundError(f"Labels not found: {labels_path}")
 
         print(f"Loading model: {model_path}")
-        self.model = load_model(model_path, compile=False)
+        self.model = load_model(
+            model_path,
+            compile=False,
+            custom_objects={"DepthwiseConv2D": _CompatDepthwiseConv2D},
+        )
 
         with open(labels_path, "r", encoding="utf-8") as f:
             self.labels = [line.strip() for line in f.readlines() if line.strip()]

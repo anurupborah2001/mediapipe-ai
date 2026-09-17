@@ -57,7 +57,7 @@ brew install tesseract                                         # required for al
 Not in the lockfile — install only when working on the feature that needs it:
 
 ```bash
-uv add tensorflow                                              # hand_gesture/hand_sign_detection only
+uv add tensorflow tf-keras                                     # hand_gesture/hand_sign_detection only
 uv add spacy && uv run python -m spacy download en_core_web_sm # TextDetector NLP methods only
 uv add pycaw comtypes                                          # Windows volume control only
 ```
@@ -185,6 +185,11 @@ interaction uses `mouse_callback=` / `mouse_callback_params=`.
 
 ## Known quirks in the existing code
 
+- `module/classifier.py` imports its loader from `tf_keras`, not `tensorflow.keras`. The Teachable
+  Machine `.h5` files are Keras 2; Keras 3 (TensorFlow 2.16 and newer) cannot read them. The
+  `TF_USE_LEGACY_KERAS` environment variable is not a workaround here — it is only read when
+  TensorFlow is first imported, and every script that uses `Classifier` imports a `module/` detector
+  first, which pulls in mediapipe and Keras 3 before `classifier.py` runs.
 - `module/hand_detector.py:11` opens `cv2.VideoCapture(0)` at module scope, so **importing
   `HandDetector` grabs the camera** on some platforms. It exists only for the `main()` demo at the
   bottom of that file. Several project scripts also create an unused module-level `cap`.
@@ -195,9 +200,11 @@ interaction uses `mouse_callback=` / `mouse_callback_params=`.
   `text_detection/form_extraction.py` imports the version from `form_detector.py`.
 - `util/utility.py` duplicates several `ImageDetector` methods (`detect_highlighted_text`,
   `get_dominant_hsv_colors`, `refine_mask`, `find_contours`) as free functions. Both are live.
-- `text_detection/form_extraction.py` raises `FileNotFoundError` at import time because
-  `text_detection/assets/annotated_form/annotated_rois_latest.json` is not committed; generate it
-  with `module/form_roi_annotator.py` first.
+- `text_detection/form_extraction.py` reads its ROI definitions from
+  `text_detection/assets/annotated_form/annotated_rois_latest.json` at import time, so that file
+  must exist before the module can even be imported. It is committed and matches
+  `assets/form/main_form.jpg`; re-annotating a different blank form with
+  `module/form_roi_annotator.py` replaces it.
 - Several asset folders referenced by scripts are not committed (`hand_gesture/images/`,
   `hand_gesture/audio/click.wav`, `face_detection/assets/`, `car_parking_slot/assets/`). Scripts
   that need them will fail on a fresh checkout until assets are supplied.

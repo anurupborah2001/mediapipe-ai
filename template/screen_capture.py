@@ -1,3 +1,13 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:7c1dd46455df898ad4e07ea80c79d802c388288270080a92ea4ef1d6b367ffe6
-size 319
+import numpy as np
+import cv2
+import mss
+
+
+class ScreenCapture:
+    def __init__(self, monitor_index=1):
+        self.sct = mss.mss()
+        self.monitor = self.sct.monitors[monitor_index]
+
+    def grab(self):
+        frame = np.array(self.sct.grab(self.monitor))
+        return cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
